@@ -1,0 +1,16 @@
+# Render Blueprint: New → Blueprint → pick this repo. Builds the Dockerfile (which trains the model).
+services:
+  - type: web
+    name: news-recommender
+    runtime: docker
+    plan: starter            # 512 MB is enough to serve; a retrain peaks around 400 MB
+    healthCheckPath: /healthz
+    envVars:
+      - key: ADMIN_TOKEN     # enables POST /api/admin/retrain and /api/admin/articles
+        generateValue: true
+      - key: RETRAIN_INTERVAL_HOURS
+        value: "24"
+    disk:                    # keeps users, clicks and retrained models across deploys
+      name: state
+      mountPath: /data
+      sizeGB: 1

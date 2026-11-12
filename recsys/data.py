@@ -46,9 +46,10 @@ def history_pairs(behaviors: pd.DataFrame) -> pd.DataFrame:
 
 def impression_click_pairs(behaviors: pd.DataFrame) -> pd.DataFrame:
     """(user_id, news_id, time) for impressions marked as clicked (NewsID-1)."""
-    imp = behaviors.assign(item=behaviors["impressions"].str.split()).explode("item")
-    imp = imp[imp["item"].str.endswith("-1")]
-    return pd.DataFrame({"user_id": imp["user_id"].values, "news_id": imp["item"].str[:-2].values, "time": imp["time"].values})
+    # Extract only clicked ids (most impressions are non-clicks), which keeps peak memory low.
+    clicked = behaviors["impressions"].str.findall(r"(\S+)-1(?:\s|$)")
+    imp = behaviors[["user_id", "time"]].assign(news_id=clicked).explode("news_id").dropna(subset=["news_id"])
+    return imp[["user_id", "news_id", "time"]].reset_index(drop=True)
 
 
 def parse_impressions(behaviors: pd.DataFrame):

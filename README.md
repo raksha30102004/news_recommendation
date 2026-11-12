@@ -1,14 +1,3 @@
----
-title: News Recommender
-emoji: 📰
-colorFrom: gray
-colorTo: blue
-sdk: docker
-app_port: 8000
-pinned: false
-short_description: ALS news recommender trained on Microsoft MIND
----
-
 # News — an ALS news recommender you can deploy
 
 A working version of the system proposed in *Recommender Systems: Project Implementation* (COMP9727, UNSW). It uses the model that won in that report, **Alternating Least Squares with category boosting**. The model is trained on Microsoft's MIND-small and served as a mobile-first web app modelled on the report's UI mockup (Figure 1).
@@ -62,9 +51,9 @@ docker build -t news-recommender .
 docker run -p 8000:8000 -v news-state:/data -e ADMIN_TOKEN=change-me news-recommender
 ```
 
-- **Render:** push this folder to a Git repo, then New → Blueprint. `render.yaml` sets up the Docker service, a persistent disk at `/data`, a generated `ADMIN_TOKEN` and a health check.
+- **Render (free):** push this folder to GitHub, then in Render go to New → Blueprint and pick the repo. `render.yaml` sets up a free Docker web service with a generated `ADMIN_TOKEN` and a health check. Free instances sleep after about 15 minutes idle (about 1 minute to wake), and users and clicks reset on restart. To keep them, use a paid plan and uncomment the disk block in `render.yaml`.
 - **Fly.io, Railway, Cloud Run, etc.:** use the Dockerfile as-is. The app listens on `$PORT`. Mount a volume at `/data` so users, clicks and retrained models survive redeploys. Without a volume the app still works, but that state resets on every deploy.
-- **Resources:** serving uses about 300 MB of RAM and a retrain peaks around 400 MB, so 512 MB works and 1 GB is comfortable. The build needs about 1.5 GB. Use `--build-arg TRAIN_ARGS=--skip-eval` to skip evaluation and build faster.
+- **Resources:** serving uses about 300 MB of RAM and a retrain peaks around 400 MB, so 512 MB works. The build needs about 650 MB. Use `--build-arg TRAIN_ARGS=--skip-eval` to skip evaluation and build faster.
 
 ### Environment variables
 

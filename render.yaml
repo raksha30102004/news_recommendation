@@ -1,16 +1,19 @@
-# Render Blueprint: New → Blueprint → pick this repo. Builds the Dockerfile (which trains the model).
+# Render Blueprint: dashboard → New → Blueprint → pick this repo.
+# The Docker build downloads MIND-small and trains ALS (~3 min, ~650 MB RAM).
 services:
   - type: web
     name: news-recommender
     runtime: docker
-    plan: starter            # 512 MB is enough to serve; a retrain peaks around 400 MB
+    plan: free               # 512 MB RAM: serving uses ~300 MB, a retrain peaks around 400 MB
     healthCheckPath: /healthz
     envVars:
-      - key: ADMIN_TOKEN     # enables POST /api/admin/retrain and /api/admin/articles
+      - key: ADMIN_TOKEN     # enables the "Retrain now" button and POST /api/admin/articles
         generateValue: true
       - key: RETRAIN_INTERVAL_HOURS
         value: "24"
-    disk:                    # keeps users, clicks and retrained models across deploys
-      name: state
-      mountPath: /data
-      sizeGB: 1
+    # Free instances have no persistent disk, so users/clicks reset when the service restarts.
+    # On a paid plan, add a disk to keep them:
+    # disk:
+    #   name: state
+    #   mountPath: /data
+    #   sizeGB: 1
